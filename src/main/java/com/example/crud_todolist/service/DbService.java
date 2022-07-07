@@ -1,5 +1,6 @@
 package com.example.crud_todolist.service;
 
+import com.example.crud_todolist.controller.TaskNotFoundException;
 import com.example.crud_todolist.domain.Task;
 import com.example.crud_todolist.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,12 +19,18 @@ public class DbService {
         return repository.findAll();
     }
 
-    public Optional<Task> getTask(final Long taskId) {
-        return repository.findById(taskId);
+    public Task getTask(final Long taskId) throws TaskNotFoundException {
+        return repository.findById(taskId).orElseThrow(TaskNotFoundException::new);
     }
 
     public Task saveTask(final Task task) {
         return repository.save(task);
+    }
+
+    public void deleteTask(final long taskId)throws TaskNotFoundException{
+        if (repository.existsById(taskId))
+            repository.deleteById(taskId);
+        else throw new TaskNotFoundException();
     }
 
 }
