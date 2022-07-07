@@ -1,6 +1,10 @@
 package com.example.crud_todolist.controller;
 
 import com.example.crud_todolist.domain.TaskDto;
+import com.example.crud_todolist.mapper.TaskMapper;
+import com.example.crud_todolist.service.DbService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -8,11 +12,16 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/v1/tasks")
-public class TaskController{
+@RequiredArgsConstructor
+public class TaskController {
+
+    private final DbService service;
+    private final TaskMapper taskMapper;
+
 
     @GetMapping
     public List<TaskDto> getTasks() {
-        return new ArrayList<>();
+        return taskMapper.mapToTaskDtoList(service.getAllTasks());
     }
 
     @GetMapping(value = "{taskId}")
