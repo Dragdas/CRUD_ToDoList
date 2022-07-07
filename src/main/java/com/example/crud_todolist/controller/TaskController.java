@@ -1,5 +1,6 @@
 package com.example.crud_todolist.controller;
 
+import com.example.crud_todolist.domain.Task;
 import com.example.crud_todolist.domain.TaskDto;
 import com.example.crud_todolist.mapper.TaskMapper;
 import com.example.crud_todolist.service.DbService;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/tasks")
@@ -25,9 +27,9 @@ public class TaskController {
     }
 
     @GetMapping(value = "{taskId}")
-    public TaskDto getTask(@PathVariable Long taskId) {
-
-        return taskMapper.mapToTaskDto(service.getTaskById(taskId));
+    public TaskDto getTask(@PathVariable Long taskId) throws TaskNotFoundException {
+        return taskMapper.mapToTaskDto(
+                service.getTask(taskId).orElseThrow(TaskNotFoundException::new)  );
     }
 
     @DeleteMapping
