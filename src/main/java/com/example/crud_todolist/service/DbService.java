@@ -17,4 +17,10 @@ public class DbService {
         return repository.findAll();
     }
 
+    public Task getTaskById(long id){
+        if (repository.findById(id).isEmpty())
+            throw new RuntimeException("There is no task with id " + id);
+        return repository.findById(id).get();
+    }
+
 }
