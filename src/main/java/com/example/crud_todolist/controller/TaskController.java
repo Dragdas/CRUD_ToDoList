@@ -19,6 +19,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/v1/tasks")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class TaskController {
 
     private final DbService service;
@@ -26,6 +27,7 @@ public class TaskController {
 
 
     @GetMapping
+    @CrossOrigin("*")
     public ResponseEntity<List<TaskDto>> getTasks() {
         return ResponseEntity.ok(taskMapper.mapToTaskDtoList(service.getAllTasks()));
     }
