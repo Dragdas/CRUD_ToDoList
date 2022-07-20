@@ -38,6 +38,7 @@ public class TaskController {
     }
 
     @DeleteMapping
+    @CrossOrigin("*")
     public ResponseEntity<Void> deleteTask(@RequestParam Long taskId) {
         try {
             service.deleteTask(taskId);
