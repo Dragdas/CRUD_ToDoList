@@ -4,7 +4,6 @@ echo.
 echo There were errors
 goto fail
 
-
 :openbrowser
 start "" http://localhost:8080/crud/v1/tasks
 goto end
