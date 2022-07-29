@@ -1,17 +1,13 @@
 package com.example.crud_todolist.domain;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TrelloBoardDto {
+public class TrelloListDto {
 
     @JsonProperty("id")
     private String id;
@@ -19,7 +15,7 @@ public class TrelloBoardDto {
     @JsonProperty("name")
     private String name;
 
-    private List<TrelloListDto> lists;
-
+    @JsonProperty("closed")
+    private boolean isClosed;
 
 }

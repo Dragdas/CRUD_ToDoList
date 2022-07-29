@@ -1,6 +1,9 @@
 package com.example.crud_todolist.trello.client;
 
+import com.example.crud_todolist.domain.CreatedTrelloCard;
 import com.example.crud_todolist.domain.TrelloBoardDto;
+import com.example.crud_todolist.domain.TrelloCardDto;
+import com.example.crud_todolist.domain.TrelloListDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -40,6 +43,37 @@ public class TrelloClient {
                 .orElse(Collections.emptyList());
     }
 
+    public List<TrelloListDto> getListsFromBoards(String boardId){
+
+        URI url = generateGetListsRequestPatch(boardId);
+
+        TrelloListDto[] listsResponse = restTemplate.getForObject(url, TrelloListDto[].class);
+
+        return Optional.ofNullable(listsResponse)
+                .map(Arrays::asList)
+                .orElse(Collections.emptyList());
+
+    }
+
+    public CreatedTrelloCard createNewCard(TrelloCardDto trelloCardDto){
+
+        URI url = UriComponentsBuilder.fromHttpUrl(trelloApiEndpoint + "/cards")
+                .queryParam("key", trelloAppKey)
+                .queryParam("token", trelloToken)
+                .queryParam("name", trelloCardDto.getName())
+                .queryParam("desc", trelloCardDto.getDescription())
+                .queryParam("pos", trelloCardDto.getPos())
+                .queryParam("idList", trelloCardDto.getListId())
+                .build()
+                .encode()
+                .toUri();
+
+        return restTemplate.postForObject(url,null,CreatedTrelloCard.class);
+    }
+
+
+
+
     private URI generateGetBoardsRequestPath(){
 
         return UriComponentsBuilder.fromHttpUrl(trelloApiEndpoint + "/members/" + username + "/boards")
@@ -49,6 +83,17 @@ public class TrelloClient {
                 .build()
                 .encode()
                 .toUri();
+    }
+
+    private URI generateGetListsRequestPatch(String boardId){
+
+        return UriComponentsBuilder.fromHttpUrl(trelloApiEndpoint + "/boards/" + boardId + "/lists")
+                .queryParam("key", trelloAppKey)
+                .queryParam("token", trelloToken)
+                .build()
+                .encode()
+                .toUri();
+
     }
 
 }
