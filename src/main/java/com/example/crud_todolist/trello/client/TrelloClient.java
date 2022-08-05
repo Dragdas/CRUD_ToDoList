@@ -83,9 +83,6 @@ public class TrelloClient {
         return restTemplate.postForObject(url,null,CreatedTrelloCard.class);
     }
 
-
-
-
     private URI generateGetBoardsRequestPath(){
 
         return UriComponentsBuilder.fromHttpUrl(trelloConfig.getTrelloApiEndpoint() + "/members/" + trelloConfig.getUsername() + "/boards")

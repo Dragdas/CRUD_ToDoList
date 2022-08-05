@@ -35,12 +35,6 @@ class SimpleEmailServiceTest {
                 .message("Test Message")
                 .build();
 
-        Mail mailNoCC = Mail.builder()
-                .mailTo("test@test.com")
-                .subject("Test")
-                .message("Test Message")
-                .build();
-
         SimpleMailMessage mailMessageWithCC = new SimpleMailMessage();
         mailMessageWithCC.setTo(mailWithCC.getMailTo());
         if(mailWithCC.getToCC() != null)
@@ -48,16 +42,10 @@ class SimpleEmailServiceTest {
         mailMessageWithCC.setSubject(mailWithCC.getSubject());
         mailMessageWithCC.setText(mailWithCC.getMessage());
 
-        SimpleMailMessage mailMessageNoCC = new SimpleMailMessage();
-        mailMessageNoCC.setTo(mailNoCC.getMailTo());
-        if(mailNoCC.getToCC() != null)
-            mailMessageNoCC.setCc(mailNoCC.getToCC());
-        mailMessageNoCC.setSubject(mailNoCC.getSubject());
-        mailMessageNoCC.setText(mailNoCC.getMessage());
 
         //When
         simpleEmailService.send(mailWithCC);
-        simpleEmailService.send(mailNoCC);
+
 
         //Then
         verify(javaMailSender, times(1)).send(mailMessageWithCC);
