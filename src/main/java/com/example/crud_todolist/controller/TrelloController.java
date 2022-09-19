@@ -3,7 +3,6 @@ package com.example.crud_todolist.controller;
 import com.example.crud_todolist.domain.CreatedTrelloCardDto;
 import com.example.crud_todolist.domain.TrelloBoardDto;
 import com.example.crud_todolist.domain.TrelloCardDto;
-import com.example.crud_todolist.service.TrelloService;
 import com.example.crud_todolist.trello.facade.TrelloFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
