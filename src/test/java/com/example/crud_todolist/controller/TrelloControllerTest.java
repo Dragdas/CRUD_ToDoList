@@ -1,57 +1,40 @@
 package com.example.crud_todolist.controller;
 
-import com.example.crud_todolist.domain.CreatedTrelloCardDto;
+
 import com.example.crud_todolist.domain.TrelloBoardDto;
-import com.example.crud_todolist.domain.TrelloCardDto;
+import com.example.crud_todolist.trello.facade.TrelloFacade;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Collection;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
 class TrelloControllerTest {
 
-    @Autowired
-    TrelloController controller;
-
     @Test
-    void getTrelloBoards() {
-        //when
-        ResponseEntity<List<TrelloBoardDto>> response = controller.getTrelloBoards();
-        int status = response.getStatusCodeValue();
-
-        response.getBody().stream().map(TrelloBoardDto::getLists)
-                .flatMap(Collection::stream)
-                .forEach(trelloListDto -> System.out.println(trelloListDto.getId()));
-
-        //then
-        assertEquals(200, status);
-
-    }
-
-    @Test
-    void createTrelloCard() {
-        //Given
-        TrelloCardDto trelloCardDto = new TrelloCardDto("test","test","1","1");
+    void shouldFetchEmptyTrelloBoards() throws Exception{
+        //given
+        TrelloFacade trelloFacade = mock(TrelloFacade.class);
+        when(trelloFacade.fetchTrelloBoards()).thenReturn(List.of());
+        TrelloController trelloController = new TrelloController(trelloFacade);
 
         //when
-        ResponseEntity<CreatedTrelloCardDto> response = controller.createTrelloCard(trelloCardDto);
-        CreatedTrelloCardDto responseBody = response.getBody();
+        ResponseEntity<List<TrelloBoardDto>> response = trelloController.getTrelloBoards();
 
         //then
         assertEquals(200, response.getStatusCodeValue());
-        assert responseBody != null;
-        assertEquals("tried to test", responseBody.getName());
-        assertEquals(-1, responseBody.getBadges().getVotes());
-        assertFalse(responseBody.getBadges().isLocation());
-        assertFalse(responseBody.getBadges().isViewingMemberVoted());
-        assertFalse(responseBody.getBadges().isSubscribed());
-        assertFalse(responseBody.getBadges().isDescription());
-        assertFalse(responseBody.getBadges().isDueComplete());
+        assertEquals(List.of(), response.getBody());
+
     }
+
+
+
+
+
+
+
 }

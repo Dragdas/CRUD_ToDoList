@@ -1,6 +1,9 @@
 package com.example.crud_todolist.controller;
 
+import com.example.crud_todolist.domain.Task;
 import com.example.crud_todolist.domain.TaskDto;
+import com.example.crud_todolist.mapper.TaskMapper;
+import com.example.crud_todolist.service.DbService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,65 +13,95 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
+
 class TaskControllerTest {
 
-    @Autowired
-    TaskController taskController;
+    DbService dbService = mock(DbService.class);
+    TaskMapper taskMapper = mock(TaskMapper.class);
 
-
-    @Test
-    void getTasks() {
-        //when & then
-        Assertions.assertDoesNotThrow(()->taskController.getTasks());
-    }
+    TaskController taskController = new TaskController(dbService, taskMapper);
 
     @Test
-    void getTask(){
+    void shouldReturnEmptyList(){
         //given
-        boolean threwException = false;
+        when(dbService.getAllTasks()).thenReturn(List.of());
+        when(taskMapper.mapToTaskDtoList(List.of())).thenReturn(List.of());
 
         //when
-        try {
-            ResponseEntity<TaskDto> response = taskController.getTask(-1L);
-        }catch (TaskNotFoundException e){
-            threwException = true;
-        }
+        ResponseEntity<List<TaskDto>> response = taskController.getTasks();
 
         //then
-        assertTrue(threwException);
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(List.of(), response.getBody());
     }
-
 
     @Test
-    void createAndDeleteTask() {
+    void shouldReturnTask() throws TaskNotFoundException {
         //given
-        TaskDto taskToBeSaved = new TaskDto(null,"test", "content");
+        Task task = new Task(1L, "Test", "Test content");
+        TaskDto taskDto = new TaskDto(1L,"Test", "Test content");
 
-        //create
-        try{
-            //when
-            int numberOfTasks = taskController.getTasks().getBody().size();
-            taskController.createTask(taskToBeSaved);
-            int numberOfTasksAfterAddition = taskController.getTasks().getBody().size();
+        when(dbService.getTask(1L)).thenReturn(task);
+        when(taskMapper.mapToTaskDto(task)).thenReturn(taskDto);
 
-            //then
-            assertTrue(numberOfTasksAfterAddition > numberOfTasks);
+        //when
+        ResponseEntity<TaskDto> response = taskController.getTask(1L);
 
-        }catch (Exception e){
-            fail("Should not throw");
-        }
-
-
-        //delete
-        int taskAmountBefore = taskController.getTasks().getBody().size();
-        List<TaskDto> tasks = taskController.getTasks().getBody();
-        TaskDto addedTask = tasks.get(tasks.size()-1);
-        taskController.deleteTask(addedTask.getId());
-        int taskAmountAfter = taskController.getTasks().getBody().size();
-        assertTrue(taskAmountBefore > taskAmountAfter);
+        //then
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(1L, response.getBody().getId());
     }
+
+    @Test
+    void shouldEndWithOkStatus() throws TaskNotFoundException {
+        //given
+        doNothing().when(dbService).deleteTask(1L);
+
+        //when
+        ResponseEntity<Void> response = taskController.deleteTask(1L);
+
+        //then
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
+    void shouldReturnUpdatedTaskDto(){
+        //given
+        TaskDto inputTaskDto = new TaskDto(1L, "Test input", "Test content");
+        Task mappedTask = new Task(1L, "Test input", "Test content");
+        Task savedTask = new Task(1L, "Test saved", "Test content");
+        TaskDto mappedToOutput = new TaskDto(1L, "Test saved", "Test content");
+        when(taskMapper.mapToTask(inputTaskDto)).thenReturn(mappedTask);
+        when(dbService.saveTask(mappedTask)).thenReturn(savedTask);
+        when(taskMapper.mapToTaskDto(savedTask)).thenReturn(mappedToOutput);
+
+        //when
+        ResponseEntity<TaskDto> response = taskController.updateTask(inputTaskDto);
+
+        //then
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Test saved", response.getBody().getTitle());
+    }
+
+    @Test
+    void shouldSaveTask(){
+        //given
+        TaskDto inputTaskDto = new TaskDto(1L, "Test input", "Test content");
+        Task mappedTask = new Task(1L, "Test input", "Test content");
+        Task savedTask = new Task(1L, "Test saved", "Test content");
+        when(taskMapper.mapToTask(inputTaskDto)).thenReturn(mappedTask);
+        when(dbService.saveTask(mappedTask)).thenReturn(savedTask);
+
+        //when
+        ResponseEntity<Void> response = taskController.createTask(inputTaskDto);
+
+        //then
+        assertEquals(200, response.getStatusCodeValue());
+
+    }
+
 
 
 }
